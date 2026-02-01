@@ -1,0 +1,25 @@
+{
+    "name": "Mind Gym",
+    "short_name": "Mind Gym",
+    "description": "Train your focus, attention, and mental clarity",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#1a1816",
+    "theme_color": "#c17f59",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "icons/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "icons/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["health", "lifestyle", "productivity"]
+}
