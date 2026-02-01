@@ -14,8 +14,13 @@ class App {
         // Initialize Lucide icons
         lucide.createIcons();
 
-        // Initialize audio on first interaction
-        document.addEventListener('click', () => audio.init(), { once: true });
+        // Initialize audio on first interaction (iOS requires touch event)
+        const initAudio = async () => {
+            await audio.init();
+            await audio.resume();
+        };
+        document.addEventListener('click', initAudio, { once: true });
+        document.addEventListener('touchstart', initAudio, { once: true });
 
         // Navigation
         this.setupNavigation();
