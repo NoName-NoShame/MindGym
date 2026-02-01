@@ -13,7 +13,7 @@ class AudioEngine {
     // Initialize audio context (must be called after user interaction)
     async init() {
         if (this.initialized) return;
-        
+
         try {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             this.masterGain = this.audioContext.createGain();
@@ -25,10 +25,17 @@ class AudioEngine {
         }
     }
 
-    // Ensure audio context is running
+    // Ensure audio context is running (iOS fix)
     async resume() {
-        if (this.audioContext && this.audioContext.state === 'suspended') {
-            await this.audioContext.resume();
+        if (!this.audioContext) return;
+
+        if (this.audioContext.state === 'suspended') {
+            try {
+                await this.audioContext.resume();
+                console.log('Audio context resumed');
+            } catch (e) {
+                console.error('Failed to resume audio:', e);
+            }
         }
     }
 
@@ -66,22 +73,22 @@ class AudioEngine {
         this.resume();
 
         const now = this.audioContext.currentTime;
-        
+
         // Two-tone success jingle
         [523.25, 659.25].forEach((freq, i) => {
             const osc = this.audioContext.createOscillator();
             const gain = this.audioContext.createGain();
-            
+
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, now);
-            
+
             gain.gain.setValueAtTime(0, now + i * 0.1);
             gain.gain.linearRampToValueAtTime(0.3, now + i * 0.1 + 0.02);
             gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.3);
-            
+
             osc.connect(gain);
             gain.connect(this.masterGain);
-            
+
             osc.start(now + i * 0.1);
             osc.stop(now + i * 0.1 + 0.3);
         });
@@ -146,7 +153,7 @@ class AudioEngine {
     // Generate noise (white, pink, brown)
     createNoise(type = 'white') {
         if (!this.initialized) return null;
-        
+
         const bufferSize = 2 * this.audioContext.sampleRate;
         const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
         const data = buffer.getChannelData(0);
@@ -154,7 +161,7 @@ class AudioEngine {
         let lastOut = 0;
         for (let i = 0; i < bufferSize; i++) {
             const white = Math.random() * 2 - 1;
-            
+
             if (type === 'pink') {
                 // Simple approximation of pink noise
                 data[i] = (lastOut + (0.02 * white)) / 1.02;
@@ -305,9 +312,9 @@ class AudioEngine {
                 setTimeout(() => {
                     try {
                         node.source.stop();
-                    } catch (e) {}
+                    } catch (e) { }
                 }, 600);
-            } catch (e) {}
+            } catch (e) { }
             this.activeNodes.delete(type);
         }
     }
